@@ -1,0 +1,117 @@
+import { useState } from "react";
+
+const SAMPLE_DATA = [
+  {
+    id: 1,
+    company: "Google",
+    role: "Software Engineer",
+    status: "Interview",
+    date: "2026-03-28",
+  },
+  {
+    id: 2,
+    company: "Netflix",
+    role: "Frontend Developer",
+    status: "Applied",
+    date: "2026-03-30",
+  },
+  {
+    id: 3,
+    company: "Amazon",
+    role: "Java Developer",
+    status: "Rejected",
+    date: "2026-03-25",
+  },
+];
+
+const STATUS_COLORS = {
+  Applied: "bg-blue-100 text-blue-700",
+  Interview: "bg-yellow-100 text-yellow-700",
+  Offer: "bg-green-100 text-green-700",
+  Rejected: "bg-red-100 text-red-700",
+};
+
+function ApplicationPage() {
+  const [applications] = useState(SAMPLE_DATA);
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">
+              Applications{" "}
+            </h1>
+            <p className="text-gray-500 text-sm">
+              All your job applications in one place
+            </p>
+          </div>
+
+          <button className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            + Add Application
+          </button>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="text-left px-6 py-3 text-gray-600 font-medium">
+                  Company
+                </th>
+                <th className="text-left px-6 py-3 text-gray-600 font-medium">
+                  Role
+                </th>
+                <th className="text-left px-6 py-3 text-gray-600 font-medium">
+                  Status
+                </th>
+                <th className="text-left px-6 py-3 text-gray-600 font-medium">
+                  Date
+                </th>
+                <th className="text-left px-6 py-3 text-gray-600 font-medium">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {applications.map((app) => (
+                <tr
+                  key={app.id}
+                  className="border-b border-gray-100 hover:bg-gray-50"
+                >
+                  <td className="px-6 py-4 font-medium text-gray-800">
+                    {app.company}
+                  </td>
+                  <td className="px-6 py-4 font-medium text-gray-600">
+                    {app.role}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[app.status]}`}
+                    >
+                      {app.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 font-medium text-gray-600">
+                    {app.date}
+                  </td>
+                  <td className="px-6 py-4">
+                    <button className="text-blue-600 hover:underline text-xs mr-3">
+                      Edit
+                    </button>
+                    <button className="text-red-500 hover:underline text-xs">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ApplicationPage;
