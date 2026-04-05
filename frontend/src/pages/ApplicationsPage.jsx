@@ -1,4 +1,6 @@
 import { useState } from "react";
+import AddApplicationModal from "../components/AddApplicationModal";
+import EditApplicationModal from "../components/EditApplicationModal";
 
 const SAMPLE_DATA = [
   {
@@ -32,7 +34,23 @@ const STATUS_COLORS = {
 };
 
 function ApplicationPage() {
-  const [applications] = useState(SAMPLE_DATA);
+  const [applications, setApplications] = useState(SAMPLE_DATA);
+  const [showModal, setShowModal] = useState(false);
+  const [editingApp, setEditingApp] = useState(null);
+
+  const handleAdd = (newApp) => {
+    setApplications([...applications, { ...newApp, id: Date.now() }]);
+  };
+
+  const handleEdit = (updatedApp) => {
+    setApplications(
+      applications.map((app) => (app.id === updatedApp.id ? updatedApp : app)),
+    );
+  };
+
+  const handleDelete = (id) => {
+    setApplications(applications.filter((app) => app.id !== id));
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -47,7 +65,10 @@ function ApplicationPage() {
             </p>
           </div>
 
-          <button className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          >
             + Add Application
           </button>
         </div>
@@ -97,10 +118,16 @@ function ApplicationPage() {
                     {app.date}
                   </td>
                   <td className="px-6 py-4">
-                    <button className="text-blue-600 hover:underline text-xs mr-3">
+                    <button
+                      onClick={() => setEditingApp(app)}
+                      className="text-blue-600 hover:underline text-xs mr-3"
+                    >
                       Edit
                     </button>
-                    <button className="text-red-500 hover:underline text-xs">
+                    <button
+                      onClick={() => handleDelete(app.id)}
+                      className="text-red-500 hover:underline text-xs"
+                    >
                       Delete
                     </button>
                   </td>
@@ -110,6 +137,21 @@ function ApplicationPage() {
           </table>
         </div>
       </div>
+
+      {showModal && (
+        <AddApplicationModal
+          onClose={() => setShowModal(false)}
+          onAdd={handleAdd}
+        />
+      )}
+
+      {editingApp && (
+        <EditApplicationModal
+          application={editingApp}
+          onClose={() => setEditingApp(null)}
+          onEdit={handleEdit}
+        />
+      )}
     </div>
   );
 }
