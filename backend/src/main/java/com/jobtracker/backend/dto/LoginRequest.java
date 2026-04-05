@@ -3,6 +3,7 @@ package com.jobtracker.backend.dto;
 import lombok.Data;
 
 @Data
-public class LoginRequestLoginRequest {
-    
+public class LoginRequest {
+    private String email;
+    private String password;
 }
