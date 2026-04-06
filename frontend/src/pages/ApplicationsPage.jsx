@@ -1,6 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddApplicationModal from "../components/AddApplicationModal";
 import EditApplicationModal from "../components/EditApplicationModal";
+import {
+  createApplications,
+  deleteApplications,
+  getApplications,
+  updateApplications,
+} from "../api/applications";
 
 const SAMPLE_DATA = [
   {
@@ -37,19 +43,53 @@ function ApplicationPage() {
   const [applications, setApplications] = useState(SAMPLE_DATA);
   const [showModal, setShowModal] = useState(false);
   const [editingApp, setEditingApp] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const handleAdd = (newApp) => {
-    setApplications([...applications, { ...newApp, id: Date.now() }]);
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  const fetchApplications = async () => {
+    try {
+      const response = await getApplications();
+      setApplications(response.data);
+    } catch (err) {
+      setError("Failed to load applications");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleEdit = (updatedApp) => {
-    setApplications(
-      applications.map((app) => (app.id === updatedApp.id ? updatedApp : app)),
-    );
+  const handleAdd = async (newApp) => {
+    try {
+      const respone = await createApplications(newApp);
+      setApplications([...applications, respone.data]);
+    } catch (err) {
+      setError("Failed to add application");
+    }
   };
 
-  const handleDelete = (id) => {
-    setApplications(applications.filter((app) => app.id !== id));
+  const handleEdit = async (updatedApp) => {
+    try {
+      const response = await updateApplications(updatedApp.id, updatedApp);
+      setApplications(
+        applications.map((app) =>
+          app.id === updatedApp.id ? updatedApp : app,
+        ),
+      );
+    } catch (err) {
+      setError("Failed to update application");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteApplications(id);
+      setApplications(applications.filter((app) => app.id !== id));
+    } catch (err) {
+      setError("Failed to delete application");
+    }
   };
 
   return (
@@ -73,69 +113,81 @@ function ApplicationPage() {
           </button>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="text-left px-6 py-3 text-gray-600 font-medium">
-                  Company
-                </th>
-                <th className="text-left px-6 py-3 text-gray-600 font-medium">
-                  Role
-                </th>
-                <th className="text-left px-6 py-3 text-gray-600 font-medium">
-                  Status
-                </th>
-                <th className="text-left px-6 py-3 text-gray-600 font-medium">
-                  Date
-                </th>
-                <th className="text-left px-6 py-3 text-gray-600 font-medium">
-                  Actions
-                </th>
-              </tr>
-            </thead>
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
 
-            <tbody>
-              {applications.map((app) => (
-                <tr
-                  key={app.id}
-                  className="border-b border-gray-100 hover:bg-gray-50"
-                >
-                  <td className="px-6 py-4 font-medium text-gray-800">
-                    {app.company}
-                  </td>
-                  <td className="px-6 py-4 font-medium text-gray-600">
-                    {app.role}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[app.status]}`}
-                    >
-                      {app.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 font-medium text-gray-600">
-                    {app.date}
-                  </td>
-                  <td className="px-6 py-4">
-                    <button
-                      onClick={() => setEditingApp(app)}
-                      className="text-blue-600 hover:underline text-xs mr-3"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(app.id)}
-                      className="text-red-500 hover:underline text-xs"
-                    >
-                      Delete
-                    </button>
-                  </td>
+        {loading ? (
+          <div className="text-center text-gray-500 text-sm py-12">
+            Loading...
+          </div>
+        ) : (
+          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="text-left px-6 py-3 text-gray-600 font-medium">
+                    Company
+                  </th>
+                  <th className="text-left px-6 py-3 text-gray-600 font-medium">
+                    Role
+                  </th>
+                  <th className="text-left px-6 py-3 text-gray-600 font-medium">
+                    Status
+                  </th>
+                  <th className="text-left px-6 py-3 text-gray-600 font-medium">
+                    Date
+                  </th>
+                  <th className="text-left px-6 py-3 text-gray-600 font-medium">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+
+              <tbody>
+                {applications.map((app) => (
+                  <tr
+                    key={app.id}
+                    className="border-b border-gray-100 hover:bg-gray-50"
+                  >
+                    <td className="px-6 py-4 font-medium text-gray-800">
+                      {app.company}
+                    </td>
+                    <td className="px-6 py-4 font-medium text-gray-600">
+                      {app.role}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[app.status]}`}
+                      >
+                        {app.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 font-medium text-gray-600">
+                      {app.date}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => setEditingApp(app)}
+                        className="text-blue-600 hover:underline text-xs mr-3"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(app.id)}
+                        className="text-red-500 hover:underline text-xs"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {showModal && (

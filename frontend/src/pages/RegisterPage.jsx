@@ -1,14 +1,34 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser, registerUser } from "../api/auth";
+import { useAuth } from "../context/AuthContext";
 
 function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("name: ", name, "email: ", email, "password", password);
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await registerUser({ name, email, password });
+      login(response.data.token);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Registration failed. Please try again",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -19,6 +39,12 @@ function RegisterPage() {
         <p className="text-gray-500 text-sm mb-6">
           Start tracking your job applications
         </p>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
@@ -59,9 +85,10 @@ function RegisterPage() {
           </div>
           <button
             type="submit"
+            disabled={loading}
             className="bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
           >
-            Create account
+            {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
 
