@@ -17,3 +17,5 @@ frontend/.env
 .DS_Store
 *.log
 EOF
+
+backend/src/main/resources/application.yml

@@ -2,8 +2,8 @@
 
 A full-stack web application to track job applications with an AI-powered resume advisor.
 
-**Live Demo:** [https://your-app.vercel.app](https://your-app.vercel.app)  
-**Backend API:** [https://your-app.up.railway.app](https://your-app.up.railway.app)
+**Live Demo:** [https://job-tracker-hazel.vercel.app/](https://job-tracker-hazel.vercel.app/)  
+**Backend API:** [https://job-tracker-production-7395.up.railway.app/](https://job-tracker-production-7395.up.railway.app/)
 
 ---
 
