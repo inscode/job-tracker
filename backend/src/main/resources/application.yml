@@ -18,3 +18,7 @@ server:
 jwt:
   secret: ${JWT_SECRET:mylocalsecretkey123456789012345678}
   expiration: 86400000
+
+gemini:
+  api:
+    key: AIzaSyB37tDpuFxdJp7RBJzbeCbtudH89FjuowQ

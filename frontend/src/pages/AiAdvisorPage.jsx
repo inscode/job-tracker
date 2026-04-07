@@ -1,24 +1,26 @@
 import { useState } from "react";
+import { getResumeTips } from "../api/ai";
 
 function AiAdvisorPage() {
   const [jobDescription, setJobDescription] = useState("");
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setResult("");
+    setError("");
 
-    setTimeout(() => {
-      setResult(`Based on this job description, here are some resume tips:
-                1. Highlight your experience with java and spring boot prominently.
-                2. Mention any REST API projects you have built
-                3. Add keywords like "microservices", "JWT", "PostgreSQL", to match the job.
-                4. Quantity your achievements - e.g "reduced API response time by 30%".
-                5. Include a Github link with active projects.`);
+    try {
+      const response = await getResumeTips(jobDescription);
+      setResult(response.data.tips);
+    } catch (err) {
+      setError("Failed to get AI tips, Please try again.");
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -31,6 +33,12 @@ function AiAdvisorPage() {
           Paste a job description and get started and get tailored resume tips
           powered by Gemini AI
         </p>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="bg-white border border-gray-200 rounded-xl p-4">
@@ -58,13 +66,26 @@ function AiAdvisorPage() {
 
         {result && (
           <div className="mt-6 bg-white border border-gray-200 rounded-xl p-6">
-            <h2 className="text-sm font-semibold text-gray-700 mb-3">
+            <h2 className="text-sm font-semibold text-gray-700 mb-4">
               AI Suggestions
             </h2>
-            <p className="text-sm text-gray-600 white-pre-line leading-relaxed">
-              {" "}
-              {result}{" "}
-            </p>
+            <div className="flex flex-col gap-3">
+              {result
+                .split("\n")
+                .filter(
+                  (line) => line.trim() !== "" && /^\d+\./.test(line.trim()),
+                )
+                .map((line, index) => (
+                  <div key={index} className="flex gap-3 items-start">
+                    <span className="min-w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center mt-0.5">
+                      {index + 1}
+                    </span>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {line.replace(/^\d+\.\s\*?\*?/, "").replace(/\*\*/g, "")}
+                    </p>
+                  </div>
+                ))}
+            </div>
           </div>
         )}
       </div>
