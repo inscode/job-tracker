@@ -92,7 +92,7 @@ React (Vercel)  <-->  Spring Boot REST API (Railway)  <-->  PostgreSQL (Neon)
 ### Option A — Docker (recommended)
 
 ```bash
-git clone https://github.com/yourusername/job-tracker.git
+git clone https://github.com/inscode/job-tracker.git
 cd job-tracker
 docker-compose up
 ```
